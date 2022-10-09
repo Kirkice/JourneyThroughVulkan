@@ -5,7 +5,12 @@
 #include <stdexcept>
 #include <cstdlib>
 
+//	窗口 宽高
+const uint32_t WIDTH = 800;
+const uint32_t HEIGHT = 600;
+
 class HelloTriangleApplication {
+
 public:
 	void run() {
 		initWindow();
@@ -15,13 +20,12 @@ public:
 	}
 
 private:
-	GLFWwindow* window = nullptr;
-	const uint32_t WIDTH = 800;
-	const uint32_t HEIGHT = 600;
+	GLFWwindow* window;
 
-private:
-	void initWindow()
-	{
+	VkInstance instance;
+
+	//	glfw初始化窗口
+	void initWindow() {
 		glfwInit();
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -30,24 +34,62 @@ private:
 		window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 	}
 
+	//	初始化vk实例
 	void initVulkan() {
-
+		createInstance();
 	}
 
+	//	主循环
 	void mainLoop() {
 		while (!glfwWindowShouldClose(window)) {
 			glfwPollEvents();
 		}
 	}
 
+	//	清理
 	void cleanup() {
+
+		//	销毁实例
+		vkDestroyInstance(instance, nullptr);
+
+		//	glfw 销毁窗口
 		glfwDestroyWindow(window);
 
 		glfwTerminate();
 	}
+
+	//	创建实例
+	void createInstance() {
+
+		VkApplicationInfo appInfo{};
+		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+		appInfo.pApplicationName = "Hello Triangle";
+		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+		appInfo.pEngineName = "No Engine";
+		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+		appInfo.apiVersion = VK_API_VERSION_1_0;
+
+		VkInstanceCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+		createInfo.pApplicationInfo = &appInfo;
+
+		uint32_t glfwExtensionCount = 0;
+		const char** glfwExtensions;
+		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+		createInfo.enabledExtensionCount = glfwExtensionCount;
+		createInfo.ppEnabledExtensionNames = glfwExtensions;
+
+		createInfo.enabledLayerCount = 0;
+
+		if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create instance!");
+		}
+	}
 };
 
 int main() {
+
 	HelloTriangleApplication app;
 
 	try {

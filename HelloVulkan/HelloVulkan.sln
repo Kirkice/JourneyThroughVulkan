@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.32630.194
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "00_DevelopmentEnvironment", "00_DevelopmentEnvironment\00_DevelopmentEnvironment.vcxproj", "{7F4CA4EC-D648-4ACB-BE53-063B9D707CC9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloTriangle", "HelloTriangle\HelloTriangle.vcxproj", "{CC196DBA-B293-4B72-AD80-959414368C2A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01_HelloTriangle", "01_HelloTriangle\HelloTriangle.vcxproj", "{CC196DBA-B293-4B72-AD80-959414368C2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
