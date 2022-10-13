@@ -23,6 +23,7 @@ const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
 };
 
+//	交换链验证层
 const std::vector<const char*> deviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
@@ -80,6 +81,8 @@ private:
 
 	VkInstance instance;
 	VkDebugUtilsMessengerEXT debugMessenger;
+
+	//由于 Vulkan 是一个与平台无关的 API，它不能自己直接与窗口系统交互。要在 Vulkan 和窗口系统之间建立连接以将结果呈现到屏幕上，我们需要使用 WSI（窗口系统集成）扩展.
 	VkSurfaceKHR surface;
 
 	//	当VkInstance被销毁时，该对象将被隐式销毁  所以不需要在cleanup中操作
@@ -88,6 +91,8 @@ private:
 	VkDevice device;
 
 	VkQueue graphicsQueue;
+
+	//	创建演示队列
 	VkQueue presentQueue;
 
 	//	设备特定扩展  它允许您将渲染图像从该设备呈现到窗口
@@ -130,9 +135,12 @@ private:
 	void initVulkan() {
 		createInstance();
 		setupDebugMessenger();
+		//	创建窗口表面
 		createSurface();
+
 		pickPhysicalDevice();
 		createLogicalDevice();
+		//	创建交换链
 		createSwapChain();
 		createImageViews();
 		createRenderPass();
@@ -186,6 +194,7 @@ private:
 			DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 		}
 
+		//	GLFW 不提供用于销毁表面的特殊功能 需要调用Vulkan的API 销毁SurfaceKHR和实例
 		vkDestroySurfaceKHR(instance, surface, nullptr);
 		vkDestroyInstance(instance, nullptr);
 
@@ -270,6 +279,7 @@ private:
 		}
 	}
 
+	//	GLFW 调用采用简单的参数而不是结构，这使得函数的实现非常简单：
 	void createSurface() {
 		if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create window surface!");
@@ -353,6 +363,8 @@ private:
 
 		//	检索每个队列的队列句柄 
 		vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+
+		//	如果队列族相同，那么我们只需要传递一次它的索引。最后，添加一个调用来检索队列句柄：
 		vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 	}
 
@@ -778,6 +790,8 @@ private:
 		return shaderModule;
 	}
 
+	//	选择交换链的表面模式		每个VkSurfaceFormatKHR条目包含一个format和一个colorSpace成员。该 format成员指定颜色通道和类型。
+	//	对于颜色空间，如果可用，我们将使用 SRGB，因为它可以产生更准确的感知颜色。它也是图像的标准色彩空间，就像我们稍后将使用的纹理一样。因此，我们还应该使用 SRGB 颜色格式，其中最常见的一种是VK_FORMAT_B8G8R8A8_SRGB.
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
 		for (const auto& availableFormat : availableFormats) {
 			if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
@@ -788,6 +802,14 @@ private:
 		return availableFormats[0];
 	}
 
+
+	//	演示模式可以说是交换链最重要的设置，因为它代表了将图像显示到屏幕的实际条件。
+	//	选择交换链的演示模式
+
+	//	·VK_PRESENT_MODE_IMMEDIATE_KHR：您的应用程序提交的图像会立即转移到屏幕上，这可能会导致撕裂。
+	//	·VK_PRESENT_MODE_FIFO_KHR：交换链是一个队列，当显示器刷新时，显示器从队列的前面获取图像，程序将渲染的图像插入到队列的后面。如果队列已满，则程序必须等待。这与现代游戏中的垂直同步最为相似。刷新显示的那一刻称为“垂直空白”。
+	//  ·VK_PRESENT_MODE_FIFO_RELAXED_KHR：此模式仅在应用程序迟到并且队列在最后一个垂直空白处为空的情况下与前一种模式不同。图像最终到达时立即传输，而不是等待下一个垂直空白。这可能会导致明显的撕裂。
+	//	·VK_PRESENT_MODE_MAILBOX_KHR: 这是第二种模式的另一种变体。队列已满时不会阻塞应用程序，而是将已排队的图像简单地替换为较新的图像。此模式可用于尽可能快地渲染帧，同时仍避免撕裂，与标准垂直同步相比，延迟问题更少。这就是俗称的“三重缓冲”，虽然单独存在三个缓冲并不一定意味着帧率是解锁的。
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) {
 		for (const auto& availablePresentMode : availablePresentModes) {
 			if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
@@ -798,6 +820,7 @@ private:
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 
+	//	交换范围		交换范围是交换链图像的分辨率，它几乎总是完全等于我们正在绘制的窗口的分辨率（以像素为单位）
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
 		if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
 			return capabilities.currentExtent;
@@ -818,6 +841,7 @@ private:
 		}
 	}
 
+	//	交换链支持情况
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) {
 		SwapChainSupportDetails details;
 
@@ -826,11 +850,13 @@ private:
 		uint32_t formatCount;
 		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
 
+		//	查询支持的表面格式 确保调整矢量大小以容纳所有可用格式
 		if (formatCount != 0) {
 			details.formats.resize(formatCount);
 			vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
 		}
 
+		//	查询支持的表面模式
 		uint32_t presentModeCount;
 		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
 
@@ -842,6 +868,7 @@ private:
 		return details;
 	}
 
+	//	设备支持情况
 	bool isDeviceSuitable(VkPhysicalDevice device) {
 		QueueFamilyIndices indices = findQueueFamilies(device);
 
@@ -872,6 +899,7 @@ private:
 		return requiredExtensions.empty();
 	}
 
+	//	查找能够呈现到窗口表面的队列族 
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) {
 		QueueFamilyIndices indices;
 
@@ -890,6 +918,7 @@ private:
 			VkBool32 presentSupport = false;
 			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
 
+			//	然后简单地检查布尔值并存储表示族队列索引
 			if (presentSupport) {
 				indices.presentFamily = i;
 			}
