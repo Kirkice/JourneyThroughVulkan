@@ -137,8 +137,9 @@ private:
 		setupDebugMessenger();
 		//	创建窗口表面
 		createSurface();
-
+		//	创建物理设备
 		pickPhysicalDevice();
+		//	创建逻辑设备
 		createLogicalDevice();
 		//	创建交换链
 		createSwapChain();
@@ -319,6 +320,7 @@ private:
 
 	//	创建逻辑设备
 	void createLogicalDevice() {
+
 		//	创建队列
 		QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
