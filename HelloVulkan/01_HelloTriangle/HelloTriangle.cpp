@@ -61,6 +61,8 @@ struct QueueFamilyIndices {
 	}
 };
 
+//与 类似findQueueFamilies，一旦查询到这些细节，我们将使用一个结构来传递这些细节。上述三种类型的属性以以下结构和结构列表的形式出现：
+//交换链支持细节
 struct SwapChainSupportDetails {
 	VkSurfaceCapabilitiesKHR capabilities;
 	std::vector<VkSurfaceFormatKHR> formats;
@@ -69,10 +71,16 @@ struct SwapChainSupportDetails {
 
 class HelloTriangleApplication {
 public:
-	void run() {
+	//	运行
+	void run() 
+	{
+		//	初始化窗口
 		initWindow();
+		//	初始化Vulkan
 		initVulkan();
+		//	主循环
 		mainLoop();
+		//	清除
 		cleanup();
 	}
 
@@ -118,12 +126,20 @@ private:
 	bool framebufferResized = false;
 
 	void initWindow() {
+
+		// glfw 初始化
 		glfwInit();
 
+		// glfw 窗口初始化
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
+		//	glfw创建窗口
 		window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+
+		//	把需要的data以指针的方式传递给window
 		glfwSetWindowUserPointer(window, this);
+
+		//	我们还需要注册这个函数，告诉GLFW我们希望每当窗口调整大小的时候调用这个函数
 		glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 	}
 
@@ -133,16 +149,25 @@ private:
 	}
 
 	void initVulkan() {
+
+		//	创建Vulkan实例
 		createInstance();
+
+		//	设置Debug输出
 		setupDebugMessenger();
+
 		//	创建窗口表面
 		createSurface();
-		//	创建物理设备
+
+		//	选择物理设备
 		pickPhysicalDevice();
+
 		//	创建逻辑设备
 		createLogicalDevice();
+
 		//	创建交换链
 		createSwapChain();
+
 		createImageViews();
 		createRenderPass();
 		createGraphicsPipeline();
@@ -161,18 +186,24 @@ private:
 		vkDeviceWaitIdle(device);
 	}
 
+	//	清理交换链
 	void cleanupSwapChain() {
+
+		//	销毁Frame Buffer
 		for (auto framebuffer : swapChainFramebuffers) {
 			vkDestroyFramebuffer(device, framebuffer, nullptr);
 		}
 
+		//	销毁Image View
 		for (auto imageView : swapChainImageViews) {
 			vkDestroyImageView(device, imageView, nullptr);
 		}
 
+		//	销毁SwapchainKHR
 		vkDestroySwapchainKHR(device, swapChain, nullptr);
 	}
 
+	//	销毁
 	void cleanup() {
 		cleanupSwapChain();
 
@@ -204,23 +235,33 @@ private:
 		glfwTerminate();
 	}
 
+	//	重置交换链
 	void recreateSwapChain() {
 		int width = 0, height = 0;
+
 		glfwGetFramebufferSize(window, &width, &height);
 		while (width == 0 || height == 0) {
 			glfwGetFramebufferSize(window, &width, &height);
 			glfwWaitEvents();
 		}
 
+		//	等待设备处于空闲状态
 		vkDeviceWaitIdle(device);
 
+		//	销毁交换链
 		cleanupSwapChain();
 
+		//	创建交换链
 		createSwapChain();
+
+		//	创建Image View
 		createImageViews();
+
+		//	创建Frame Buffer
 		createFramebuffers();
 	}
 
+	//	创建实例
 	void createInstance() {
 		if (enableValidationLayers && !checkValidationLayerSupport()) {
 			throw std::runtime_error("validation layers requested, but not available!");
@@ -269,6 +310,7 @@ private:
 		createInfo.pfnUserCallback = debugCallback;
 	}
 
+	//	设置Debug输出
 	void setupDebugMessenger() {
 		if (!enableValidationLayers) return;
 
@@ -370,6 +412,7 @@ private:
 		vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 	}
 
+	//	创建交换链
 	void createSwapChain() {
 		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
 
