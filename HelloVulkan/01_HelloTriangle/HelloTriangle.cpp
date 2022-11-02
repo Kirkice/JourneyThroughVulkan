@@ -34,7 +34,7 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = false;
 #endif
 
-
+//	创建Debug工具
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
 	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
 	if (func != nullptr) {
@@ -45,6 +45,7 @@ VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMes
 	}
 }
 
+//	销毁Debug工具
 void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) {
 	auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
 	if (func != nullptr) {
@@ -52,6 +53,7 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
 	}
 }
 
+//	队列家族索引
 struct QueueFamilyIndices {
 	std::optional<uint32_t> graphicsFamily;
 	std::optional<uint32_t> presentFamily;
@@ -85,9 +87,11 @@ public:
 	}
 
 private:
+	//	GLFW 窗口
 	GLFWwindow* window;
-
+	//	VK 实例
 	VkInstance instance;
+	//	Vulkan Debug
 	VkDebugUtilsMessengerEXT debugMessenger;
 
 	//由于 Vulkan 是一个与平台无关的 API，它不能自己直接与窗口系统交互。要在 Vulkan 和窗口系统之间建立连接以将结果呈现到屏幕上，我们需要使用 WSI（窗口系统集成）扩展.
@@ -96,8 +100,10 @@ private:
 	//	当VkInstance被销毁时，该对象将被隐式销毁  所以不需要在cleanup中操作
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 
+	//	VKDevice
 	VkDevice device;
 
+	//	VK队列
 	VkQueue graphicsQueue;
 
 	//	创建演示队列
@@ -105,26 +111,51 @@ private:
 
 	//	设备特定扩展  它允许您将渲染图像从该设备呈现到窗口
 	VkSwapchainKHR swapChain;
+
+	//	vkImage是图形数据的集合，可用于纹理以及附件，以及图形管线的相关描述符填充
 	std::vector<VkImage> swapChainImages;
+
+	//	VK格式
 	VkFormat swapChainImageFormat;
+
+	//	纹理
 	VkExtent2D swapChainExtent;
+
+	//	Image 视口
 	std::vector<VkImageView> swapChainImageViews;
+
+	//	VK FrameBuffer
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
+	//	VK 渲染通道
 	VkRenderPass renderPass;
+
+	//	pipelineLayout
 	VkPipelineLayout pipelineLayout;
+
+	//	渲染管线
 	VkPipeline graphicsPipeline;
 
+	//	命令缓冲池
 	VkCommandPool commandPool;
+
+	// 命令缓冲
 	std::vector<VkCommandBuffer> commandBuffers;
 
+	//	Image可获取信号量
 	std::vector<VkSemaphore> imageAvailableSemaphores;
+
+	//	结束渲染信号量
 	std::vector<VkSemaphore> renderFinishedSemaphores;
+
+	//	Vulkan 栅栏同步
 	std::vector<VkFence> inFlightFences;
+
 	uint32_t currentFrame = 0;
 
 	bool framebufferResized = false;
 
+	//	初始化窗口
 	void initWindow() {
 
 		// glfw 初始化
@@ -143,11 +174,13 @@ private:
 		glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 	}
 
+	//	frameBuffer重置回调
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
 		auto app = reinterpret_cast<HelloTriangleApplication*>(glfwGetWindowUserPointer(window));
 		app->framebufferResized = true;
 	}
 
+	//	初始化Vulkan
 	void initVulkan() {
 
 		//	创建Vulkan实例
@@ -168,21 +201,39 @@ private:
 		//	创建交换链
 		createSwapChain();
 
+		//	创建Image视口
 		createImageViews();
+
+		//	创建渲染Pass	
 		createRenderPass();
+
+		//	创建图形管线
 		createGraphicsPipeline();
+
+		//	创建FrameBuffer
 		createFramebuffers();
+
+		//	创建命令缓冲池
 		createCommandPool();
+
+		//	创建命令缓冲
 		createCommandBuffers();
+
+		//	栅栏同步
 		createSyncObjects();
 	}
 
+	//	主循环
 	void mainLoop() {
+
 		while (!glfwWindowShouldClose(window)) {
 			glfwPollEvents();
+
+			//	绘制
 			drawFrame();
 		}
 
+		//	等待设备处于空闲状态
 		vkDeviceWaitIdle(device);
 	}
 
@@ -736,6 +787,10 @@ private:
 		}
 	}
 
+	//尽管我们现在已经设置了必需的对象以方便同时处理多个帧，但实际上并没有阻止提交超过MAX_FRAMES_IN_FLIGHT个对象。 现在只有GPU - GPU同步，没有CPU - GPU同步来跟踪工作的进行情况。 我们可能正在使用第0帧对象，而第0帧仍在显示中！
+
+	//为了执行CPU - GPU同步，Vulkan提供了第二种类型的同步原语，称为fences。 在可以发信号并等待信号的意义上，fence与信号相似，但是这次我们实际上在自己的代码中等待信号。 我们首先为每个框架创建一个fence
+
 	void createSyncObjects() {
 		imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 		renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -757,7 +812,10 @@ private:
 		}
 	}
 
+	//	绘制
 	void drawFrame() {
+
+		//	等待栅栏同步
 		vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
 		uint32_t imageIndex;
@@ -771,11 +829,14 @@ private:
 			throw std::runtime_error("failed to acquire swap chain image!");
 		}
 
+		//	重置栅栏
 		vkResetFences(device, 1, &inFlightFences[currentFrame]);
-
+		//	重置CommandBuffer
 		vkResetCommandBuffer(commandBuffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
+		//	记录CommandBuffer
 		recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
 
+		//	信号量
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -821,6 +882,7 @@ private:
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
+	//	创建Shader Module
 	VkShaderModule createShaderModule(const std::vector<char>& code) {
 		VkShaderModuleCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
