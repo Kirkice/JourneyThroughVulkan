@@ -460,7 +460,7 @@ private:
 		vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
 
 		//	如果队列族相同，那么我们只需要传递一次它的索引。最后，添加一个调用来检索队列句柄：
-		vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
+		vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue); 
 	}
 
 	//	创建交换链
