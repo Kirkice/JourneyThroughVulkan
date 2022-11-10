@@ -125,7 +125,7 @@ private:
 	std::vector<VkImageView> swapChainImageViews;
 
 	//	VK FrameBuffer
-	std::vector<VkFramebuffer> swapChainFramebuffers;
+	std::vector<VkFramebuffer> swapChainFramebuffers; 
 
 	//	VK 渲染通道
 	VkRenderPass renderPass;
