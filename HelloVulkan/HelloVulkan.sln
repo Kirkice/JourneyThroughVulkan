@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01_HelloTriangle", "01_Hell
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "02_TextureMapping", "02_TextureMapping\02_TextureMapping.vcxproj", "{B96DE6FE-C49B-4853-B492-A60DAE4BD1B6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "03_DepthBuffer", "03_DepthBuffer\03_DepthBuffer.vcxproj", "{CBE1BCC8-BE39-4CD9-BD48-434CEBF82D72}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{B96DE6FE-C49B-4853-B492-A60DAE4BD1B6}.Release|x64.Build.0 = Release|x64
 		{B96DE6FE-C49B-4853-B492-A60DAE4BD1B6}.Release|x86.ActiveCfg = Release|Win32
 		{B96DE6FE-C49B-4853-B492-A60DAE4BD1B6}.Release|x86.Build.0 = Release|Win32
+		{CBE1BCC8-BE39-4CD9-BD48-434CEBF82D72}.Debug|x64.ActiveCfg = Debug|x64
+		{CBE1BCC8-BE39-4CD9-BD48-434CEBF82D72}.Debug|x64.Build.0 = Debug|x64
+		{CBE1BCC8-BE39-4CD9-BD48-434CEBF82D72}.Debug|x86.ActiveCfg = Debug|Win32
+		{CBE1BCC8-BE39-4CD9-BD48-434CEBF82D72}.Debug|x86.Build.0 = Debug|Win32
+		{CBE1BCC8-BE39-4CD9-BD48-434CEBF82D72}.Release|x64.ActiveCfg = Release|x64
+		{CBE1BCC8-BE39-4CD9-BD48-434CEBF82D72}.Release|x64.Build.0 = Release|x64
+		{CBE1BCC8-BE39-4CD9-BD48-434CEBF82D72}.Release|x86.ActiveCfg = Release|Win32
+		{CBE1BCC8-BE39-4CD9-BD48-434CEBF82D72}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
