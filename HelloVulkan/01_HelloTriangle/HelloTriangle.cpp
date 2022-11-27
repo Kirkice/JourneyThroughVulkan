@@ -813,7 +813,7 @@ private:
 	}
 
 	//	绘制
-	void drawFrame() {
+	void drawFrame() {  
 
 		//	等待栅栏同步
 		vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
