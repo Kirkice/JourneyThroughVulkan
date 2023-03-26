@@ -1,3 +1,0 @@
-﻿  GenertingMipmaps.cpp
-LINK : warning LNK4098: 默认库“MSVCRT”与其他库的使用冲突；请使用 /NODEFAULTLIB:library
-  05_GenerateMipmaps.vcxproj -> E:\Engine Project\JourneyThroughVulkan\HelloVulkan\x64\Debug\05_GenerateMipmaps.exe

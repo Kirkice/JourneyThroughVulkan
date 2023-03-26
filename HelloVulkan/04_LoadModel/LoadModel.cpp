@@ -32,8 +32,8 @@
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
-const std::string MODEL_PATH = "models/Marry.obj";
-const std::string TEXTURE_PATH = "textures/MC003_Kozakura_Mari.png";
+const std::string MODEL_PATH = "../res/models/Marry.obj";
+const std::string TEXTURE_PATH = "../res/textures/MC003_Kozakura_Mari.png";
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
